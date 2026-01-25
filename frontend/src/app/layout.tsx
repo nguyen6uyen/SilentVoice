@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-    title: "Chaplin Web - Visual Speech Recognition",
+    title: "SilenceVoice - Visual Speech Recognition",
     description: "Accessible communication tool for mute individuals using visual speech recognition",
 };
 

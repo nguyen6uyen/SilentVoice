@@ -9,6 +9,7 @@ export default function Home() {
     const [isRecording, setIsRecording] = useState(false);
     const [transcription, setTranscription] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isAutoSpeakEnabled, setIsAutoSpeakEnabled] = useState(false);
 
     const handleVideoReady = useCallback(async (videoBlob: Blob) => {
         setIsProcessing(true);
@@ -17,10 +18,16 @@ export default function Home() {
             const formData = new FormData();
             formData.append('video', videoBlob, 'recording.webm');
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
             const response = await fetch('http://localhost:8000/process-video', {
                 method: 'POST',
                 body: formData,
+                signal: controller.signal,
             });
+
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 throw new Error('Failed to process video');
@@ -28,13 +35,20 @@ export default function Home() {
 
             const data = await response.json();
             setTranscription(data.corrected_text);
+
+            if (isAutoSpeakEnabled && data.corrected_text) {
+                const utterance = new SpeechSynthesisUtterance(data.corrected_text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
+            }
         } catch (error) {
             console.error('Error processing video:', error);
             setTranscription('Error: Unable to process video. Make sure the backend is running.');
         } finally {
             setIsProcessing(false);
         }
-    }, []);
+    }, [isAutoSpeakEnabled]);
 
     const handleSpeak = useCallback(() => {
         if (!transcription) return;
@@ -71,7 +85,7 @@ export default function Home() {
                             </svg>
                         </div>
                         <h1 className="text-3xl md:text-4xl font-bold gold-gradient-text tracking-tight">
-                            Chaplin
+                            SilenceVoice
                         </h1>
                     </div>
                     <p className="text-[var(--text-secondary)] text-sm font-light">
@@ -130,16 +144,33 @@ export default function Home() {
                     <div className="notepad-area min-h-[200px] flex flex-col flex-grow">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="text-xs font-bold opacity-30 uppercase tracking-[0.2em]">Transcription</h3>
-                            {transcription && (
+                            <div className="flex items-center gap-3">
                                 <button
-                                    onClick={handleSpeak}
-                                    className="w-8 h-8 rounded-full bg-[var(--bg-obsidian)]/10 text-[var(--bg-obsidian)] flex items-center justify-center hover:scale-110 transition-transform"
+                                    onClick={() => setIsAutoSpeakEnabled(!isAutoSpeakEnabled)}
+                                    className={`
+                                        flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all
+                                        ${isAutoSpeakEnabled
+                                            ? 'bg-[var(--accent-gold)] text-[var(--bg-obsidian)] shadow-lg'
+                                            : 'bg-[var(--bg-obsidian)]/5 text-[var(--text-secondary)] hover:bg-[var(--bg-obsidian)]/10'}
+                                    `}
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                                     </svg>
+                                    <span>{isAutoSpeakEnabled ? 'Text-To-Speech On' : 'Text-To-Speech Off'}</span>
                                 </button>
-                            )}
+                                {transcription && (
+                                    <button
+                                        onClick={handleSpeak}
+                                        className="w-8 h-8 rounded-full bg-[var(--bg-obsidian)]/10 text-[var(--bg-obsidian)] flex items-center justify-center hover:scale-110 transition-transform"
+                                        title="Speak Text"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         <div className="flex-grow">
                             <TranscriptionDisplay
@@ -172,7 +203,7 @@ export default function Home() {
             {/* Footer */}
             <footer className="mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[var(--text-secondary)] text-[10px] font-medium tracking-wider uppercase">
                 <div className="flex items-center gap-6">
-                    <span>© 2026 Chaplin AI</span>
+                    <span>© 2026 SilenceVoice AI</span>
                     <a href="#" className="hover:text-[var(--accent-gold)] transition-colors">Privacy</a>
                     <a href="#" className="hover:text-[var(--accent-gold)] transition-colors">Terms</a>
                 </div>

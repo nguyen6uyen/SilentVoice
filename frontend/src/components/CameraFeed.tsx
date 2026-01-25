@@ -100,16 +100,7 @@ export default function CameraFeed({ isRecording, onVideoReady }: CameraFeedProp
                 className="w-full h-full object-cover scale-x-[-1]"
             />
 
-            {/* Solaris Tracking Box */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="tracking-box w-48 h-48 md:w-56 md:h-56">
-                    {/* Corner accents */}
-                    <div className="absolute -top-0.5 -left-0.5 w-4 h-4 border-t-2 border-l-2 border-[var(--accent-gold-bright)]/60 rounded-tl-lg"></div>
-                    <div className="absolute -top-0.5 -right-0.5 w-4 h-4 border-t-2 border-r-2 border-[var(--accent-gold-bright)]/60 rounded-tr-lg"></div>
-                    <div className="absolute -bottom-0.5 -left-0.5 w-4 h-4 border-b-2 border-l-2 border-[var(--accent-gold-bright)]/60 rounded-bl-lg"></div>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 border-b-2 border-r-2 border-[var(--accent-gold-bright)]/60 rounded-br-lg"></div>
-                </div>
-            </div>
+
 
             {/* Status Overlays */}
             <div className="absolute top-4 left-4 flex items-center gap-2">
