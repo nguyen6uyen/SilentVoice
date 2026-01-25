@@ -18,7 +18,7 @@ from fastapi.responses import JSONResponse
 from ollama import AsyncClient
 from pydantic import BaseModel
 
-from chaplin import ChaplinOutput
+from silencevoice import ChaplinOutput
 from pipelines.pipeline import InferencePipeline
 
 
