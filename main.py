@@ -1,7 +1,7 @@
 import torch
 import hydra
 from pipelines.pipeline import InferencePipeline
-from chaplin import Chaplin
+from silencevoice import Chaplin
 
 
 @hydra.main(version_base=None, config_path="hydra_configs", config_name="default")
