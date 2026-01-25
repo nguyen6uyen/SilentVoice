@@ -23,16 +23,26 @@
 }
 
 :root {
-    --bg-obsidian: #080808;
-    --bg-charcoal: #111111;
-    --bg-card: rgba(18, 18, 18, 0.7);
-    --accent-gold: #c5a028;
-    --accent-gold-bright: #ffb800;
-    --accent-gold-muted: #6b561d;
-    --accent-cream: #f8f8fa;
+    /* Oceanic Theme */
+    --bg-obsidian: #050b14;
+    --bg-charcoal: #0a1120;
+    --bg-card: rgba(10, 17, 32, 0.7);
+
+    /* Accents */
+    --accent-gold: #0ea5e9;
+    /* Sky Blue 500 */
+    --accent-gold-bright: #38bdf8;
+    /* Sky Blue 400 */
+    --accent-gold-muted: #0369a1;
+    /* Sky Blue 700 */
+    --accent-cream: #f0f9ff;
+    /* Sky Blue 50 */
+
+    /* Text */
     --text-primary: #ffffff;
-    --text-secondary: #888888;
-    --text-gold: #c5a028;
+    --text-secondary: #94a3b8;
+    /* Slate 400 */
+    --text-gold: #0ea5e9;
 }
 
 body {
@@ -42,8 +52,8 @@ body {
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
     background-image:
-        radial-gradient(circle at 0% 0%, rgba(197, 160, 40, 0.03) 0%, transparent 40%),
-        radial-gradient(circle at 100% 100%, rgba(197, 160, 40, 0.03) 0%, transparent 40%);
+        radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.05) 0%, transparent 40%);
     min-height: 100vh;
 }
 
@@ -67,26 +77,26 @@ h3,
 
     .solaris-button-primary {
         @apply relative overflow-hidden rounded-full px-6 py-3 text-sm font-semibold transition-all duration-400;
-        background: linear-gradient(135deg, #c5a028 0%, #ffb800 100%);
-        color: #080808;
-        box-shadow: 0 4px 20px rgba(197, 160, 40, 0.1);
+        background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-bright) 100%);
+        color: #ffffff;
+        box-shadow: 0 4px 20px rgba(14, 165, 233, 0.2);
     }
 
     .solaris-button-primary:hover {
         @apply scale-105;
-        box-shadow: 0 8px 30px rgba(197, 160, 40, 0.2);
+        box-shadow: 0 8px 30px rgba(14, 165, 233, 0.3);
     }
 
     .solaris-button-outline {
-        @apply rounded-full border border-[#c5a028]/50 px-6 py-3 text-sm font-semibold text-[#c5a028] transition-all duration-400;
+        @apply rounded-full border border-[var(--accent-gold)]/50 px-6 py-3 text-sm font-semibold text-[var(--accent-gold)] transition-all duration-400;
     }
 
     .solaris-button-outline:hover {
-        @apply bg-[#c5a028] text-[#080808] border-transparent;
+        @apply bg-[var(--accent-gold)] text-white border-transparent;
     }
 
     .gold-gradient-text {
-        background: linear-gradient(135deg, #c5a028 0%, #f8f8fa 50%, #c5a028 100%);
+        background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-cream) 50%, var(--accent-gold) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -113,12 +123,12 @@ h3,
     }
 
     .tracking-box {
-        @apply absolute border border-[#ffb800]/40 rounded-xl pointer-events-none;
-        box-shadow: 0 0 20px rgba(255, 184, 0, 0.2), inset 0 0 10px rgba(255, 184, 0, 0.1);
-        animation: pulse-gold 3s infinite ease-in-out;
+        @apply absolute border border-[var(--accent-gold-bright)]/40 rounded-xl pointer-events-none;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.2), inset 0 0 10px rgba(56, 189, 248, 0.1);
+        animation: pulse-blue 3s infinite ease-in-out;
     }
 
-    @keyframes pulse-gold {
+    @keyframes pulse-blue {
 
         0%,
         100% {
@@ -133,8 +143,8 @@ h3,
     }
 
     .notepad-area {
-        @apply bg-[#f8f8fa] text-[#080808] rounded-[1.5rem] p-8 font-serif shadow-xl;
-        background-image: radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.03) 1px, transparent 0);
+        @apply bg-[#f0f9ff] text-[#0f172a] rounded-[1.5rem] p-8 font-serif shadow-xl;
+        background-image: radial-gradient(circle at 1px 1px, rgba(14, 165, 233, 0.1) 1px, transparent 0);
         background-size: 20px 20px;
     }
 }
@@ -149,10 +159,10 @@ h3,
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #6b561d;
+    background: #0369a1;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #c5a028;
+    background: #0ea5e9;
 }
