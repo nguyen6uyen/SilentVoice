@@ -11,6 +11,34 @@ export default function Home() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [isAutoSpeakEnabled, setIsAutoSpeakEnabled] = useState(false);
 
+    const playTTS = async (text: string) => {
+        try {
+            const response = await fetch('/api/tts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('TTS API Error Details:', errorData);
+                throw new Error(errorData.error || 'TTS request failed');
+            }
+
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            audio.play();
+        } catch (error) {
+            console.error('Error playing TTS:', error);
+            // Fallback to browser TTS if API fails
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(utterance);
+        }
+    };
+
     const handleVideoReady = useCallback(async (videoBlob: Blob) => {
         setIsProcessing(true);
 
@@ -21,7 +49,8 @@ export default function Home() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
-            const response = await fetch('http://localhost:8000/process-video', {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const response = await fetch(`${apiUrl}/process-video`, {
                 method: 'POST',
                 body: formData,
                 signal: controller.signal,
@@ -37,10 +66,7 @@ export default function Home() {
             setTranscription(data.corrected_text);
 
             if (isAutoSpeakEnabled && data.corrected_text) {
-                const utterance = new SpeechSynthesisUtterance(data.corrected_text);
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
-                window.speechSynthesis.speak(utterance);
+                await playTTS(data.corrected_text);
             }
         } catch (error) {
             console.error('Error processing video:', error);
@@ -52,20 +78,12 @@ export default function Home() {
 
     const handleSpeak = useCallback(() => {
         if (!transcription) return;
-
-        const utterance = new SpeechSynthesisUtterance(transcription);
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-        window.speechSynthesis.speak(utterance);
+        playTTS(transcription);
     }, [transcription]);
 
     const handlePhraseSelect = useCallback((phrase: string) => {
         setTranscription(phrase);
-
-        const utterance = new SpeechSynthesisUtterance(phrase);
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-        window.speechSynthesis.speak(utterance);
+        playTTS(phrase);
     }, []);
 
     const toggleRecording = () => {
@@ -78,10 +96,9 @@ export default function Home() {
             <header className="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-8 gap-4">
                 <div className="space-y-1 text-center sm:text-left">
                     <div className="flex items-center justify-center sm:justify-start gap-2">
-                        <div className="w-8 h-8 rounded-xl bg-[var(--accent-gold)] flex items-center justify-center shadow-lg">
+                        <div className="w-8 h-8 rounded-xl bg-[var(--accent-gold-muted)] flex items-center justify-center shadow-lg">
                             <svg className="w-5 h-5 text-[var(--bg-obsidian)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                             </svg>
                         </div>
                         <h1 className="text-3xl md:text-4xl font-bold gold-gradient-text tracking-tight">
