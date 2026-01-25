@@ -49,7 +49,8 @@ export default function Home() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
-            const response = await fetch('http://localhost:8000/process-video', {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const response = await fetch(`${apiUrl}/process-video`, {
                 method: 'POST',
                 body: formData,
                 signal: controller.signal,
