@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements files
 COPY requirements.txt .
-COPY backend/backend_requirements.txt .
+COPY backend_requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt && \
