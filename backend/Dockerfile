@@ -12,14 +12,16 @@ WORKDIR /app
 # wget: for downloading models
 # git: for potential git dependencies
 # ffmpeg: for audio/video processing
-# libsm6, libxext6, libgl1-mesa-glx: for OpenCV/MediaPipe
+# libgl1: replaced libgl1-mesa-glx for Debian Bookworm
+# libglib2.0-0: required for opencv
 RUN apt-get update && apt-get install -y \
     wget \
     git \
     ffmpeg \
     libsm6 \
     libxext6 \
-    libgl1-mesa-glx \
+    libgl1 \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements files
