@@ -8,6 +8,4 @@ mediapipe==0.10.20
 torch
 torchvision
 torchaudio
-ollama
-pydantic
-pynput
+
