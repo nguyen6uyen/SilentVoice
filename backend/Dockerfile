@@ -32,16 +32,25 @@ COPY backend_requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r backend_requirements.txt
 
+# Create a non-root user
+RUN useradd -m -u 1000 user
+
 # Copy the application code
-COPY . .
+COPY --chown=user . .
 
-# Download the VSR models
-# This ensures self-contained deployment
-RUN chmod +x setup.sh && ./setup.sh
+# Download the VSR models (as root, but chown to user)
+RUN chmod +x setup.sh && ./setup.sh && \
+    chown -R user:user /app
 
-# Expose the port the app runs on
-EXPOSE 8000
+# Switch to non-root user
+USER user
+
+# Set home to writable directory for cache
+ENV HOME=/home/user
+
+# Expose the port (HuggingFace Spaces uses 7860)
+EXPOSE 7860
 
 # Command to run the application
 # Assumes build context is the project root
-CMD ["python", "backend/main.py"]
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "7860"]
