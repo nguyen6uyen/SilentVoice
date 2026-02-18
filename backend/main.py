@@ -18,7 +18,7 @@ from fastapi.responses import JSONResponse
 
 from pydantic import BaseModel
 
-from silencevoice import ChaplinOutput
+
 from pipelines.pipeline import InferencePipeline
 
 
