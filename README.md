@@ -1,3 +1,13 @@
+---
+title: SilentVoice Backend
+emoji: 🤫
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+license: mit
+---
+
 # SilenceVoice
 
 A visual speech recognition (VSR) tool that reads your lips in real-time and types whatever you silently mouth.
