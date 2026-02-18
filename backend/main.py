@@ -39,15 +39,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from openai import AsyncOpenAI
+import google.generativeai as genai
 
 # Global VSR model instance (loaded once at startup)
 vsr_model: Optional[InferencePipeline] = None
-# ollama_client = AsyncClient()
-openai_client = AsyncOpenAI(
-    base_url="https://gemma-3-27b-3ca9s.paas.ai.telus.com/v1",
-    api_key="dc8704d41888afb2b889a8ebac81d12f"
-)
+
+# Configure Gemini
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    print("⚠️ WARNING: GEMINI_API_KEY not set. text correction will fail.")
 
 
 @app.on_event("startup")
@@ -84,32 +86,26 @@ async def correct_output_async(output: str) -> dict:
     start_time = time.time()
     
     try:
-        # Wrap the OpenAI call with a timeout (e.g., 5 seconds)
-        response = await asyncio.wait_for(
-            openai_client.chat.completions.create(
-                model='google/gemma-3-27b-it',
-                messages=[
-                    {
-                        'role': 'system',
-                        'content': (
-                            "You are an assistant that helps make corrections to the output of a lipreading model. "
-                            "Return the corrected text in a JSON format with 'list_of_changes' and 'corrected_text' keys. "
-                            "Example JSON: {\"list_of_changes\": \"Fixed spelling\", \"corrected_text\": \"Hello world.\"}"
-                        )
-                    },
-                    {
-                        'role': 'user',
-                        'content': f"Transcription to fix:\n\n{output}"
-                    }
-                ],
-                response_format={"type": "json_object"},
-                max_tokens=150
-            ),
-            timeout=5.0
+        # Create the model
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        prompt = (
+            "You are an assistant that helps make corrections to the output of a lipreading model. "
+            "Return the corrected text in a JSON format with 'list_of_changes' and 'corrected_text' keys. "
+            "Example JSON: {\"list_of_changes\": \"Fixed spelling\", \"corrected_text\": \"Hello world.\"}\n\n"
+            f"Transcription to fix:\n\n{output}"
+        )
+
+        # Generate content asynchronously
+        response = await model.generate_content_async(
+            prompt,
+            generation_config=genai.GenerationConfig(
+                response_mime_type="application/json"
+            )
         )
         
         # Parse the content
-        content = response.choices[0].message.content
+        content = response.text
         data = json.loads(content)
         
         corrected_text = data.get('corrected_text', output.capitalize()).strip()
@@ -124,21 +120,13 @@ async def correct_output_async(output: str) -> dict:
             "corrected_text": corrected_text,
             "list_of_changes": data.get('list_of_changes', "Standard correction")
         }
-    except asyncio.TimeoutError:
-        end_time = time.time()
-        duration = end_time - start_time
-        print(f"⚠️ LLM Correction timed out after {duration:.2f} seconds", flush=True)
-        return {
-            "corrected_text": output.capitalize() + ".",
-            "list_of_changes": "LLM timeout, used raw output"
-        }
     except Exception as e:
         end_time = time.time()
         duration = end_time - start_time
         print(f"⚠️ LLM Correction failed after {duration:.2f} seconds: {str(e)}", flush=True)
         return {
             "corrected_text": output.capitalize() + ".",
-            "list_of_changes": "LLM unavailable, used raw output"
+            "list_of_changes": f"LLM unavailable: {str(e)}"
         }
 
 @app.post("/process-video", response_model=TranscriptionResponse)
