@@ -15,7 +15,7 @@ import torch
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from ollama import AsyncClient
+
 from pydantic import BaseModel
 
 from silencevoice import ChaplinOutput
